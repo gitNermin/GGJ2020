@@ -4,15 +4,30 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    object[] tiles;
+    int _currTile = 0;
+
+    void GetBatekhaTiles()
     {
-        
+        tiles = GameObject.FindGameObjectsWithTag(Tags.Batee5a);
     }
 
-    // Update is called once per frame
-    void Update()
+    object GetTile()
     {
-        
+        _currTile++;
+        if (_currTile == tiles.Length)
+            return null;
+
+        return tiles[_currTile - 1];
+    }
+
+    void OnNonBatee5aBroken()
+    {
+        // yro7 ysl7ha
+    }
+
+    void BreakBatee5a()
+    {
+        //yro7 y break
     }
 }
