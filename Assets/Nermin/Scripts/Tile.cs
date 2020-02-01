@@ -15,7 +15,7 @@ public class Tile : MonoBehaviour
 
     public static UnityEvent<Tile> OnNonBatee5aBroken;
 
-    public State _myState;
+    public State _myState = State.Fixed;
 
 
     //gwa el pattern
