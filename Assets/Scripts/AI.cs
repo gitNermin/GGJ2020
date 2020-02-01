@@ -1,18 +1,27 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AI : MonoBehaviour
 {
-    object[] tiles;
+    GameObject[] tiles;
     int _currTile = 0;
 
-    void GetBatekhaTiles()
+    Queue<Action<Tile>> aiAction;
+
+    private void Start()
+    {
+        GetBatee5aTiles();
+    }
+
+    void GetBatee5aTiles()
     {
         tiles = GameObject.FindGameObjectsWithTag(Tags.Batee5a);
     }
 
-    object GetTile()
+    GameObject GetBatee5a()
     {
         _currTile++;
         if (_currTile == tiles.Length)
@@ -21,13 +30,32 @@ public class AI : MonoBehaviour
         return tiles[_currTile - 1];
     }
 
-    void OnNonBatee5aBroken()
+    public void OnNonBatee5aBroken(Tile nonbatee5a)
     {
-        // yro7 ysl7ha
+        if (nonbatee5a == null)
+            return;
+
+        aiAction.Enqueue(OnNonBatee5aBroken);
+        Vector3 tilepos = nonbatee5a.transform.position;
+        transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => nonbatee5a.Fix()));
     }
 
-    void BreakBatee5a()
+    void BreakBatee5a(Tile batee5a)
     {
-        //yro7 y break
+        if (batee5a == null)
+            return;
+
+        aiAction.Enqueue(BreakBatee5a);
+        Vector3 tilepos = batee5a.transform.position;
+        transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => batee5a.Break()));
+    }
+
+    public void MoveToNextTile()
+    {
+        GameObject tile = GetBatee5a();
+        if (tile == null)
+            return;
+
+        BreakBatee5a(tile.GetComponent<Tile>());
     }
 }
