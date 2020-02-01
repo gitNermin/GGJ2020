@@ -10,7 +10,8 @@ public class Tile : MonoBehaviour
         Broken,
         Fixed,
         Breaking,
-        Fixing
+        Fixing, 
+        Hint
     }
 
     [SerializeField]
@@ -72,16 +73,18 @@ public class Tile : MonoBehaviour
     {
         _myState = State.Fixing;
         yield return new WaitForSeconds(FixTime);
+        if (_isBatee5a) _myRenderer.material.color = Color.green;
+        else
+            _myRenderer.material.color = Color.white;
         _myState = State.Fixed;
+        OnTileFixed.Invoke(this);
     }
 
 
     public void Break()
     {
-        if(!_isBatee5a)
-        {
-            OnNonBatee5aBroken.Invoke(this);
-        }
+        
+        StartCoroutine(BreakCoroutine());
         Debug.Log("break");
     }
 
@@ -90,17 +93,26 @@ public class Tile : MonoBehaviour
     {
         _myState = State.Breaking;
         yield return new WaitForSeconds(BreakTime);
+        _myRenderer.material.color = Color.black;
         _myState = State.Broken;
+        if (!_isBatee5a)
+        {
+            OnNonBatee5aBroken.Invoke(this);
+        }
+        OnTileBroke.Invoke(this);
     }
-
+    State _preHighlightState;
     public void Highlight()
     {
+        _preHighlightState = _myState;
+        _myState = State.Hint;
         _myRenderer.material.color = Color.red;
         Invoke("Dehighlight", _highlightTime);
     }
 
     public void Dehighlight()
     {
+        _myState = _preHighlightState;
         _myRenderer.material.color = Color.white;
     }
 }
