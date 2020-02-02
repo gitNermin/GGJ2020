@@ -14,6 +14,8 @@ public class AI : MonoBehaviour
     private void Start()
     {
         GetBatee5aTiles();
+        GameObject tile = GetBatee5a();
+        BreakBatee5a(tile.GetComponent<Tile>());
     }
 
     void GetBatee5aTiles()
@@ -26,6 +28,9 @@ public class AI : MonoBehaviour
         _currTile++;
         if (_currTile == tiles.Length)
             return null;
+
+        if (tiles[_currTile - 1].GetComponent<Tile>()._myState == Tile.State.Broken)
+            return GetBatee5a();
 
         return tiles[_currTile - 1];
     }
