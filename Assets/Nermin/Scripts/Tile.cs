@@ -91,6 +91,7 @@ public class Tile : MonoBehaviour
     IEnumerator BreakCoroutine()
     {
         _myState = State.Breaking;
+       
         yield return new WaitForSeconds(BreakTime);
         _myRenderer.material.color = Color.black;
         _myState = State.Broken;
