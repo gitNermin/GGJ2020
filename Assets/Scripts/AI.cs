@@ -4,18 +4,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class AI : MonoBehaviour
 {
     List<GameObject> tiles = new List<GameObject>();
     Tile _currTile;
+    CharacterAnimation _myAnimation;
+    public static UnityEvent OnTilesFinished = new UnityEvent();
 
     Queue<Action<Tile>> aiAction = new Queue<Action<Tile>>();
 
-    private void Start()
+    private IEnumerator Start()
     {
+        _myAnimation = GetComponent<CharacterAnimation>();
         Tile.OnTileBroke.AddListener(OnTileBroken);
         Tile.OnTileFixed.AddListener(OnTileFixed);
+        yield return new WaitForSeconds(2);
         GetBatee5aTiles();
         BreakBatee5a(GetBatee5a());
     }
@@ -28,7 +33,10 @@ public class AI : MonoBehaviour
     Tile GetBatee5a()
     {
         if (tiles.Count == 0)
+        {
+            OnTilesFinished.Invoke();
             return null;
+        }
 
         _currTile = tiles[0].GetComponent<Tile>();
         if (_currTile._myState == Tile.State.Broken)
@@ -52,7 +60,8 @@ public class AI : MonoBehaviour
         else
         {
             Vector3 tilepos = tile.transform.position;
-            transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => tile.Fix()));
+            _myAnimation.Walk();
+            transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => { tile.Fix(); _myAnimation.Break(); }));
         }
     }
 
@@ -61,6 +70,7 @@ public class AI : MonoBehaviour
         aiAction.Enqueue(OnTileFixed);
         if (tile.IsBatee5a)
         {
+            
             tiles.Add(tile.gameObject);
         }
         else
@@ -75,7 +85,8 @@ public class AI : MonoBehaviour
 
         aiAction.Enqueue(BreakBatee5a);
         Vector3 tilepos = batee5a.transform.position;
-        transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => batee5a.Break()));
+        _myAnimation.Walk();
+        transform.DOMoveZ(tilepos.z, 1).OnComplete(() => transform.DOMoveX(tilepos.x, 1).OnComplete(() => { batee5a.Break(); _myAnimation.Break(); })); 
     }
 
 
