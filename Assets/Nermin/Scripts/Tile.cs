@@ -67,16 +67,20 @@ public class Tile : MonoBehaviour
         Debug.Log("fix");
         StartCoroutine("FixCoroutine");
     }
-
     public IEnumerator FixCoroutine()
     {
         _myState = State.Fixing;
+        GameObject LoadingBar = Instantiate(Resources.Load("LoadingBar")) as GameObject;
+        LoadingBar.GetComponent<LoadingBar>().ShowLoadingBar(FixTime, transform.position);
         yield return new WaitForSeconds(FixTime);
         if (_isBatee5a) _myRenderer.material.color = Color.green;
         else
             _myRenderer.material.color = Color.white;
         _myState = State.Fixed;
+        AudioManager.Instance.play("Fix");
+
         OnTileFixed.Invoke(this);
+        
     }
 
 
@@ -91,10 +95,12 @@ public class Tile : MonoBehaviour
     IEnumerator BreakCoroutine()
     {
         _myState = State.Breaking;
-       
+        GameObject LoadingBar = Instantiate(Resources.Load("LoadingBar")) as GameObject;
+        LoadingBar.GetComponent<LoadingBar>().ShowLoadingBar(FixTime, transform.position);
         yield return new WaitForSeconds(BreakTime);
         _myRenderer.material.color = Color.black;
         _myState = State.Broken;
+        AudioManager.Instance.play("Break");
         OnTileBroke.Invoke(this);
     }
     State _preHighlightState;
