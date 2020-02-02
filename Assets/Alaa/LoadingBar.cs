@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class LoadingBar : MonoBehaviour
 {
+    [SerializeField]
     GameObject loadingCanvas;
     [SerializeField]
     GameObject loading;
