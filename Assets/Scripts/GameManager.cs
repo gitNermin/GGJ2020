@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UIHealthAlchemy;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,6 +8,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public float _gameTime;
+    [SerializeField]
+    MaterialHealhBar healthbar;
 
     private float _currentTime;
 
@@ -28,6 +31,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         _currentTime = Mathf.Max(_currentTime - Time.deltaTime,0);
+        healthbar.Value = _currentTime / _gameTime;
 
     }
 
