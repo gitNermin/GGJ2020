@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public float _gameTime;
+    public float _gameTime = 7;
     [SerializeField]
     MaterialHealhBar healthbar;
 
@@ -28,10 +28,21 @@ public class GameManager : MonoBehaviour
         
     }
 
+    bool _isLoser = false;
     private void Update()
     {
-        _currentTime = Mathf.Max(_currentTime - Time.deltaTime,0);
-        healthbar.Value = _currentTime / _gameTime;
+        if (_currentTime > 0)
+        {
+
+            _currentTime = Mathf.Max(_currentTime - Time.deltaTime, 0);
+            healthbar.Value = _currentTime / _gameTime;
+        }
+        else
+        {
+            GameObject.FindGameObjectWithTag(Tags.Loser).SetActive(true);
+
+            _isLoser = true;
+        }
 
     }
 

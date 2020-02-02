@@ -61,10 +61,44 @@ public class AI : MonoBehaviour
         {
             Vector3 tilepos = tile.transform.position;
             _myAnimation.Walk();
-            transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => { tile.Fix(); _myAnimation.Break(); }));
+
+            if (tilepos.x != transform.position.x)
+            {
+                MoveX(tilepos, () => { tile.Fix(); _myAnimation.Break(); });
+            }
+            else if (tilepos.z != transform.position.z)
+            {
+                MoveZ(tilepos.z, () => { tile.Fix(); _myAnimation.Break(); });
+            }
+            //transform.DOMoveX(tilepos.x, 1).OnComplete(() => { transform.forward = (tilepos.z - transform.position.z) * Vector3.forward; transform.DOMoveZ(tilepos.z, 1).OnComplete(() => { tile.Fix(); _myAnimation.Break(); }); });
         }
     }
 
+
+    void MoveX(Vector3 position, UnityAction onFinished)
+    {
+        transform.forward = (position.x - transform.position.x) * Vector3.right;
+        transform.DOMoveX(position.x, 1).OnComplete(() =>
+        {
+            if(transform.position.z != position.z)
+            {
+                MoveZ(position.z, onFinished);
+            }
+            else
+            {
+                onFinished();
+            }
+        });
+    }
+
+    void MoveZ(float zPosition, UnityAction onFinished)
+    {
+        transform.forward = (zPosition - transform.position.z) * Vector3.forward;
+        transform.DOMoveZ(zPosition, 1).OnComplete(()=>
+        {
+            onFinished();
+        });
+    }
     void OnTileFixed(Tile tile)
     {
         aiAction.Enqueue(OnTileFixed);
@@ -78,15 +112,24 @@ public class AI : MonoBehaviour
         }
     }
 
-    void BreakBatee5a(Tile batee5a)
+    void BreakBatee5a(Tile tile)
     {
-        if (batee5a == null)
+        if (tile == null)
             return;
 
         aiAction.Enqueue(BreakBatee5a);
-        Vector3 tilepos = batee5a.transform.position;
+        Vector3 tilepos = tile.transform.position;
         _myAnimation.Walk();
-        transform.DOMoveZ(tilepos.z, 1).OnComplete(() => transform.DOMoveX(tilepos.x, 1).OnComplete(() => { batee5a.Break(); _myAnimation.Break(); })); 
+        if (tilepos.x != transform.position.x)
+        {
+            MoveX(tilepos, () => { tile.Break(); _myAnimation.Break(); });
+        }
+        else if (tilepos.z != transform.position.z)
+        {
+            MoveZ(tilepos.z, () => { tile.Break(); _myAnimation.Break(); });
+        }
+        //transform.forward = (tilepos.x - transform.position.x) * Vector3.right;
+        //transform.DOMoveX(tilepos.x, 1).OnComplete(() => { transform.forward = (tilepos.z - transform.position.z) * Vector3.forward; transform.DOMoveZ(tilepos.z, 1).OnComplete(() => { batee5a.Break(); _myAnimation.Break(); }); }); 
     }
 
 
@@ -97,5 +140,14 @@ public class AI : MonoBehaviour
             return;
 
         BreakBatee5a(tile);
+    }
+    bool _isWinner = false;
+    private void Update()
+    {
+        if(!_isWinner && tiles.Count <= 0)
+        {
+            GameObject.FindGameObjectWithTag(Tags.Winner).SetActive(true);
+            _isWinner = true;
+        }
     }
 }
