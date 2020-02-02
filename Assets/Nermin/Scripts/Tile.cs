@@ -17,7 +17,6 @@ public class Tile : MonoBehaviour
     [SerializeField]
     float _highlightTime;
     
-    public static TileEvent OnNonBatee5aBroken = new TileEvent();
     public static TileEvent OnTileFixed = new TileEvent();
     public static TileEvent OnTileBroke = new TileEvent();
 
@@ -40,7 +39,7 @@ public class Tile : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         _myRenderer = GetComponent<Renderer>();
         if (_isBatee5a)
@@ -95,10 +94,6 @@ public class Tile : MonoBehaviour
         yield return new WaitForSeconds(BreakTime);
         _myRenderer.material.color = Color.black;
         _myState = State.Broken;
-        if (!_isBatee5a)
-        {
-            OnNonBatee5aBroken.Invoke(this);
-        }
         OnTileBroke.Invoke(this);
     }
     State _preHighlightState;

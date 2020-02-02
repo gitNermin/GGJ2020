@@ -2,47 +2,70 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AI : MonoBehaviour
 {
-    GameObject[] tiles;
-    int _currTile = 0;
+    List<GameObject> tiles = new List<GameObject>();
+    Tile _currTile;
 
-    Queue<Action<Tile>> aiAction;
+    Queue<Action<Tile>> aiAction = new Queue<Action<Tile>>();
 
     private void Start()
     {
+        Tile.OnTileBroke.AddListener(OnTileBroken);
+        Tile.OnTileFixed.AddListener(OnTileFixed);
         GetBatee5aTiles();
-        GameObject tile = GetBatee5a();
-        BreakBatee5a(tile.GetComponent<Tile>());
+        BreakBatee5a(GetBatee5a());
     }
 
     void GetBatee5aTiles()
     {
-        tiles = GameObject.FindGameObjectsWithTag(Tags.Batee5a);
+        tiles = GameObject.FindGameObjectsWithTag(Tags.Batee5a).ToList();
     }
 
-    GameObject GetBatee5a()
+    Tile GetBatee5a()
     {
-        _currTile++;
-        if (_currTile == tiles.Length)
+        if (tiles.Count == 0)
             return null;
 
-        if (tiles[_currTile - 1].GetComponent<Tile>()._myState == Tile.State.Broken)
+        _currTile = tiles[0].GetComponent<Tile>();
+        if (_currTile._myState == Tile.State.Broken)
             return GetBatee5a();
 
-        return tiles[_currTile - 1];
+        return _currTile;
     }
 
-    public void OnNonBatee5aBroken(Tile nonbatee5a)
+    void OnTileBroken(Tile tile)
     {
-        if (nonbatee5a == null)
+        if (tile == null)
             return;
 
-        aiAction.Enqueue(OnNonBatee5aBroken);
-        Vector3 tilepos = nonbatee5a.transform.position;
-        transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => nonbatee5a.Fix()));
+        aiAction.Enqueue(OnTileBroken);
+        if (tile.IsBatee5a)
+        {
+            tiles.Remove(tile.gameObject);
+            if (tile.Equals(_currTile))
+                MoveToNextTile();
+        }
+        else
+        {
+            Vector3 tilepos = tile.transform.position;
+            transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => tile.Fix()));
+        }
+    }
+
+    void OnTileFixed(Tile tile)
+    {
+        aiAction.Enqueue(OnTileFixed);
+        if (tile.IsBatee5a)
+        {
+            tiles.Add(tile.gameObject);
+        }
+        else
+        {
+        }
     }
 
     void BreakBatee5a(Tile batee5a)
@@ -55,12 +78,13 @@ public class AI : MonoBehaviour
         transform.DOMoveX(tilepos.x, 1).OnComplete(() => transform.DOMoveZ(tilepos.z, 1).OnComplete(() => batee5a.Break()));
     }
 
+
     public void MoveToNextTile()
     {
-        GameObject tile = GetBatee5a();
+        Tile tile = GetBatee5a();
         if (tile == null)
             return;
 
-        BreakBatee5a(tile.GetComponent<Tile>());
+        BreakBatee5a(tile);
     }
 }
