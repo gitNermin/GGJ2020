@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject loser;
     public float _gameTime = 7;
     [SerializeField]
     MaterialHealhBar healthbar;
@@ -39,9 +40,10 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            GameObject.FindGameObjectWithTag(Tags.Loser).SetActive(true);
+            loser.SetActive(true);
 
             _isLoser = true;
+            AudioManager.Instance.play("Lose");
         }
 
     }

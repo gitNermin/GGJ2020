@@ -8,6 +8,7 @@ using UnityEngine.Events;
 
 public class AI : MonoBehaviour
 {
+    public GameObject winner;
     List<GameObject> tiles = new List<GameObject>();
     Tile _currTile;
     CharacterAnimation _myAnimation;
@@ -17,11 +18,11 @@ public class AI : MonoBehaviour
 
     private IEnumerator Start()
     {
+        GetBatee5aTiles();
         _myAnimation = GetComponent<CharacterAnimation>();
         Tile.OnTileBroke.AddListener(OnTileBroken);
         Tile.OnTileFixed.AddListener(OnTileFixed);
         yield return new WaitForSeconds(2);
-        GetBatee5aTiles();
         BreakBatee5a(GetBatee5a());
     }
 
@@ -146,8 +147,10 @@ public class AI : MonoBehaviour
     {
         if(!_isWinner && tiles.Count <= 0)
         {
-            GameObject.FindGameObjectWithTag(Tags.Winner).SetActive(true);
+            winner.SetActive(true);
             _isWinner = true;
+            AudioManager.Instance.play("Win");
+
         }
     }
 }
